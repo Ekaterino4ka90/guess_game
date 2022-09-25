@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Simple guessing number game with Javascript</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+
+<body>
+  <div class="container-sm">
+    <h1 class="bg-success text-white text-center">Game</h1>
+
+    <p class="bg-success text-white text-center">
+      Random number between 1 - 30
+    </p>
+
+    <div class="form-control text-center">
+      <label for="guessField">Enter a number: </label>
+      <input type="number" id="guessField" class="guessField" />
+      <input type="submit" value="Submit guess" class="btn btn-success" id="submitguess" />
+      <button id="refresh" class="d-none btn btn-danger">Try again!</button>
+
+      <p>Numbers: <span id="guessNumber"></span></p>
+
+      <div class="d-none alert"></div>
+    </div>
+    <script>
+
+      class Game {
+        constructor(min = 1, max = 30, attempts = 5) {
+          this.min = min;
+          this.max = max;
+          this.attempts = attempts;
+          this.wrapperId = document.getElementById('submitguess');
+          this.alert = document.querySelector('.alert');
+        }
+
+        stopGame(win = true) {
+          if (win) {
+            this.alert.classList.remove('d-none');
+            this.alert.classList.add('alert-success');
+            this.alert.innerHTML = "<strong>Congratulations!</strong>";
+          } else {
+            this.alert.classList.remove('d-none');
+            this.alert.classList.add('alert-danger');
+            this.alert.innerHTML = "<strong>Game over!</strong>";
+          }
+
+          document.querySelector('#refresh').classList.remove('d-none');
+
+          this.wrapperId.setAttribute('disabled', true);
+          this.wrapperId.onclick = () => { };
+
+          document.querySelector('#refresh').onclick = () => {
+            this.startGame();
+            document.querySelectorAll('#refresh, .alert').forEach(item => {
+              if (!item.classList.contains('d-none')) {
+                item.classList.add('d-none');
+              }
+            })
+          }
+
+        }
+
+        refreshHistory() {
+          document.querySelector('#guessNumber').textContent = this.list.join(',');
+
+        }
+
+        startGame() {
+          this.guess = 0;
+          let number = this.generateNumber();
+          this.wrapperId.removeAttribute('disabled');
+          this.list = [];
+          this.refreshHistory();
+
+          this.wrapperId.onclick = () => {
+            let userInput = document.getElementById("guessField").value;
+
+            if (userInput.length === 0) {
+              return;
+            }
+            this.list.push(userInput);
+            this.refreshHistory();
+
+            document.getElementById("guessField").value = '';
+            this.alert.className = "d-none alert";
+            if (userInput == number) {
+              this.stopGame();
+            } else if (userInput > number) {
+              this.guess++;
+              this.alert.classList.remove('d-none');
+              this.alert.classList.add('alert-info');
+              this.alert.innerHTML = "<strong>Oops sorry! Try a smaller number</strong>";
+            } else {
+              this.guess++;
+              this.alert.classList.remove('d-none');
+              this.alert.classList.add('alert-info');
+              this.alert.innerHTML = "<strong>Oops sorry! Try a greater number</strong>";
+            }
+
+            if (this.guess === this.attempts) {
+              this.stopGame(false);
+            }
+          }
+        }
+
+        generateNumber() {
+          return Math.floor(Math.random() * this.max + this.min)
+        }
+      }
+
+      let game = new Game();
+      game.startGame();
+
+    </script>
+</body>
+
+</html>
+
